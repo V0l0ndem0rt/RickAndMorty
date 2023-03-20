@@ -1,0 +1,24 @@
+.container {
+	max-width: 1130px;
+	width: 100%;
+	padding: 0 15px;
+	margin: 0 auto;
+}
+.container input {
+    padding: 5px 15px;
+}
+.buttons {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 15px;
+}
+.buttons button {
+	padding: 10px 20px;
+	font-weight: 700;
+	cursor: pointer;
+}
+.buttons div{
+    font-size: 18px;
+    font-weight: 700;
+}
