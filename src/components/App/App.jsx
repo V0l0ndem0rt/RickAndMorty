@@ -42,7 +42,6 @@ const App = () => {
 	const [countPage, setCountPage] = useState(1)
 	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState(null)
-	const [inputValue, setInputValue] = useState('')
 
 	const fetchCharacterData = useCallback(async page => {
 		try {
@@ -88,7 +87,6 @@ const App = () => {
 	const submitCount = useCallback(
 		e => {
 			const pageNumber = parseInt(e.target.value)
-			setInputValue(e.target.value)
 
 			if (
 				!pageNumber ||
