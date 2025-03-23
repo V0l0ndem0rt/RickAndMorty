@@ -4,11 +4,45 @@ import Header from '../Header/Header'
 import Main from '../Main/Main'
 import style from './App.module.css'
 
+const PaginationControls = React.memo(
+	({ countPage, character, backPage, nextPage, submitCount, isLoading }) => {
+		return (
+			<>
+				<div className={style.buttons}>
+					<button onClick={backPage} disabled={isLoading}>
+						Назад
+					</button>
+					<h3>
+						Страница {countPage} из {character?.pages || '?'}
+					</h3>
+					<button onClick={nextPage} disabled={isLoading}>
+						Вперед
+					</button>
+				</div>
+				<form
+					className={style.pageForm}
+					onSubmit={e => e.preventDefault()}
+				>
+					<input
+						type='number'
+						min='1'
+						max={character?.pages || 1}
+						placeholder='Номер страницы'
+						onChange={submitCount}
+						disabled={isLoading}
+					/>
+				</form>
+			</>
+		)
+	}
+)
+
 const App = () => {
 	const [character, setCharacter] = useState(null)
 	const [countPage, setCountPage] = useState(1)
 	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState(null)
+	const [inputValue, setInputValue] = useState('')
 
 	const fetchCharacterData = useCallback(async page => {
 		try {
@@ -53,8 +87,8 @@ const App = () => {
 
 	const submitCount = useCallback(
 		e => {
-			e.preventDefault()
 			const pageNumber = parseInt(e.target.value)
+			setInputValue(e.target.value)
 
 			if (
 				!pageNumber ||
@@ -77,27 +111,26 @@ const App = () => {
 	return (
 		<div className={style.container}>
 			<Header />
-			<div className={style.buttons}>
-				<button onClick={backPage} disabled={isLoading}>
-					Назад
-				</button>
-				<h3>
-					Страница {countPage} из {character?.pages}
-				</h3>
-				<button onClick={nextPage}>В перед</button>
-			</div>
-			<form>
-				<input type='number' onChange={submitCount} />
-			</form>
+
+			<PaginationControls
+				countPage={countPage}
+				character={character}
+				backPage={backPage}
+				nextPage={nextPage}
+				submitCount={submitCount}
+				isLoading={isLoading}
+			/>
 
 			<Main countPage={countPage} />
-			<div className={style.buttons}>
-				<button onClick={backPage}>Назад</button>
-				<h3>
-					Страница {countPage} из {character?.pages}
-				</h3>
-				<button onClick={nextPage}>В перед</button>
-			</div>
+
+			<PaginationControls
+				countPage={countPage}
+				character={character}
+				backPage={backPage}
+				nextPage={nextPage}
+				submitCount={submitCount}
+				isLoading={isLoading}
+			/>
 		</div>
 	)
 }

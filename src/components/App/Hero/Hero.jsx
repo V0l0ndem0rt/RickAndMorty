@@ -1,32 +1,51 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import GetResAll from '../../../api/GetResAll'
 import styles from './Hero.module.css'
 
 const Hero = () => {
-	const [character, setCharacte] = React.useState({
+	const [character, setCharacter] = useState({
 		name: '',
 		status: '',
 		species: '',
 		gender: '',
 		image: '',
 		type: '',
-		origin: '',
-		location: '',
+		origin: { name: '' },
+		location: { name: '' },
 	})
+	const [isLoading, setIsLoading] = useState(true)
+	const [error, setError] = useState(null)
 	const { id } = useParams()
-	React.useEffect(() => {
-		GetResAll.getCharacterItem(id).then(data => {
-			setCharacte(data)
-		})
+
+	useEffect(() => {
+		const fetchCharacter = async () => {
+			try {
+				setIsLoading(true)
+				setError(null)
+				const data = await GetResAll.getCharacterItem(id)
+				setCharacter(data)
+			} catch (err) {
+				setError('Ошибка загрузки персонажа')
+				console.error('Error fetching character:', err)
+			} finally {
+				setIsLoading(false)
+			}
+		}
+
+		fetchCharacter()
 	}, [id])
+
+	if (isLoading) return <div className={styles.loading}>Загрузка...</div>
+	if (error) return <div className={styles.error}>{error}</div>
 
 	const { name, status, species, gender, image, type, origin, location } =
 		character
+
 	return (
 		<div className={styles.cont}>
 			<Link className={styles.link} to='/'>
-				Back
+				Назад
 			</Link>
 			<div className={styles.hero}>
 				<div className={styles.desr}>

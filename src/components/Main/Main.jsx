@@ -1,43 +1,61 @@
-import GetResAll from '../../api/GetResAll'
-import React from 'react'
-import style from './Main.module.css'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import GetResAll from '../../api/GetResAll'
+import style from './Main.module.css'
 
-const Main = ({countPage}) => {
+const CharacterCard = React.memo(({ character }) => {
+	const { id, name, status, species, gender, image, type, origin, location } =
+		character
 
-    const [characters, setCharacter] = React.useState([])
+	return (
+		<div key={id} className={style.character}>
+			<h2>
+				<Link to={`/hero/${id}`}>{name}</Link>
+			</h2>
+			<img src={image} alt={name} />
+			<h3>Status: {status}</h3>
+			<h3>Species: {species}</h3>
+			<h3>Gender: {gender}</h3>
+			<h3>Type: {type || 'unknown'}</h3>
+			<h3>Origin: {origin.name}</h3>
+			<h3>Location: {location.name}</h3>
+		</div>
+	)
+})
 
-    React.useEffect(() => {
-        GetResAll.getCharacter(countPage).then(data => {
-            setCharacter(data.results)
-        })
-    }, [countPage])
+const Main = ({ countPage }) => {
+	const [characters, setCharacters] = useState([])
+	const [isLoading, setIsLoading] = useState(true)
+	const [error, setError] = useState(null)
 
+	const fetchCharacters = useCallback(async () => {
+		try {
+			setIsLoading(true)
+			setError(null)
+			const data = await GetResAll.getCharacter(countPage)
+			setCharacters(data.results)
+		} catch (err) {
+			setError('Ошибка при загрузке персонажей')
+			console.error('Error fetching characters:', err)
+		} finally {
+			setIsLoading(false)
+		}
+	}, [countPage])
 
-    return (
-        <div className={style.characters}>
-            {characters.map(character => {
-                const { id, name, status, species, gender, image, type, origin, location} = character;
+	useEffect(() => {
+		fetchCharacters()
+	}, [fetchCharacters])
 
-                return (
+	if (isLoading) return <div className={style.loading}>Загрузка...</div>
+	if (error) return <div className={style.error}>{error}</div>
 
-                    <div key={id} className={style.character}>
-
-                        <h2><Link to={`/hero/${id}`} >{name}</Link></h2>
-                        <img src={image} alt={name} />
-                        <h3>Status: {status}</h3>
-                        <h3>Species: {species}</h3>
-                        <h3>Gender: {gender}</h3>
-                        <h3>Type: {type}</h3>
-                        <h3>Origin: {origin.name}</h3>
-                        <h3>Location: {location.name}</h3>
-
-                    </div>
-                )
-            })}
-        </div>
-
-    )
+	return (
+		<div className={style.characters}>
+			{characters.map(character => (
+				<CharacterCard key={character.id} character={character} />
+			))}
+		</div>
+	)
 }
 
-export default Main
+export default React.memo(Main)
